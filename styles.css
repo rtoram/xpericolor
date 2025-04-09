@@ -97,7 +97,7 @@ h1 {
     cursor: pointer;
 }
 
-#color-palette {
+#color-palette, #harmony-palette, #color-table {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -115,6 +115,19 @@ h1 {
     background: var(--card-bg);
     color: var(--text);
     font-size: 0.8rem;
+    transition: transform 0.2s;
+}
+
+.color-block:hover {
+    transform: scale(1.05);
+}
+
+#color-wheel {
+    text-align: center;
+}
+
+#base-color {
+    margin: 10px;
 }
 
 .modal {
