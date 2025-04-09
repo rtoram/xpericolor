@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XperiColor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>XperiColor</h1>
+        <div class="toolbar">
+            <button id="undo" title="Desfazer">⟲</button>
+            <button id="redo" title="Refazer">⟳</button>
+            <button id="fullscreen" title="Tela Cheia">⤢</button>
+            <button id="share" title="Compartilhar">↷</button>
+            <button id="download" title="Baixar como JPEG">↓</button>
+            <button id="instructions" title="Instruções">?</button>
+            <button id="theme-toggle" title="Alternar Tema">☀️</button>
+        </div>
+    </header>
+
+    <main>
+        <nav class="tabs">
+            <button class="tab active" data-tab="extract">Extrair Temas</button>
+            <button class="tab" data-tab="wheel">Disco de Cores</button>
+            <button class="tab" data-tab="table">Tabela Cromática</button>
+        </nav>
+
+        <section id="extract" class="content active">
+            <div class="upload-area">
+                <input type="file" id="image-upload" accept="image/*">
+                <label for="image-upload">Escolha ou arraste uma imagem</label>
+                <button id="replace-image" title="Substituir Imagem">↻</button>
+            </div>
+            <div id="color-palette"></div>
+        </section>
+
+        <section id="wheel" class="content">
+            <div id="color-wheel">Círculo Cromático (Em Desenvolvimento)</div>
+            <select id="harmony">
+                <option value="analogous">Análogo</option>
+                <option value="monochromatic">Monocromático</option>
+                <option value="triad">Tríade</option>
+                <option value="complementary">Complementar</option>
+            </select>
+        </section>
+
+        <section id="table" class="content">
+            <div id="color-table">Tabela Cromática (Em Desenvolvimento)</div>
+        </section>
+
+        <div id="instructions-modal" class="modal">
+            <div class="modal-content">
+                <h2>Instruções de Uso</h2>
+                <p>Bem-vindo ao XperiColor!<br>
+                - <b>Extrair Temas:</b> Faça upload de uma imagem e veja as cores extraídas.<br>
+                - <b>Disco de Cores:</b> Escolha uma harmonia e crie paletas.<br>
+                - <b>Tabela Cromática:</b> Explore tons predefinidos.<br>
+                - Use os ícones para desfazer, refazer, compartilhar ou baixar.</p>
+                <button id="close-modal">Fechar</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Criado por XperiGrok, todos os direitos reservados 2025</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
