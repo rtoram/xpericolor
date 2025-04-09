@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XperiColor</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <header>
@@ -37,17 +39,20 @@
         </section>
 
         <section id="wheel" class="content">
-            <div id="color-wheel">Círculo Cromático (Em Desenvolvimento)</div>
-            <select id="harmony">
-                <option value="analogous">Análogo</option>
-                <option value="monochromatic">Monocromático</option>
-                <option value="triad">Tríade</option>
-                <option value="complementary">Complementar</option>
-            </select>
+            <div id="color-wheel">
+                <input type="color" id="base-color" value="#FF5733">
+                <select id="harmony">
+                    <option value="analogous">Análogo</option>
+                    <option value="monochromatic">Monocromático</option>
+                    <option value="triad">Tríade</option>
+                    <option value="complementary">Complementar</option>
+                </select>
+                <div id="harmony-palette"></div>
+            </div>
         </section>
 
         <section id="table" class="content">
-            <div id="color-table">Tabela Cromática (Em Desenvolvimento)</div>
+            <div id="color-table"></div>
         </section>
 
         <div id="instructions-modal" class="modal">
@@ -55,7 +60,7 @@
                 <h2>Instruções de Uso</h2>
                 <p>Bem-vindo ao XperiColor!<br>
                 - <b>Extrair Temas:</b> Faça upload de uma imagem e veja as cores extraídas.<br>
-                - <b>Disco de Cores:</b> Escolha uma harmonia e crie paletas.<br>
+                - <b>Disco de Cores:</b> Escolha uma cor base e uma harmonia.<br>
                 - <b>Tabela Cromática:</b> Explore tons predefinidos.<br>
                 - Use os ícones para desfazer, refazer, compartilhar ou baixar.</p>
                 <button id="close-modal">Fechar</button>
