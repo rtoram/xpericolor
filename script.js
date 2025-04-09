@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const colorThief = new ColorThief();
-    let history = [];
-    let redoStack = [];
+    let history = { extract: [], wheel: [], table: [] };
+    let redoStack = { extract: [], wheel: [], table: [] };
+    let currentTab = 'extract';
 
     // Alternância de Tema
     const themeToggle = document.getElementById('theme-toggle');
@@ -25,31 +26,27 @@ document.addEventListener('DOMContentLoaded', () => {
             contents.forEach(c => c.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById(tab.dataset.tab).classList.add('active');
+            currentTab = tab.dataset.tab;
         });
     });
 
-    // Upload de Imagem e Extração de Cores
+    // Extrair Temas
     const imageUpload = document.getElementById('image-upload');
+    const imagePreview = document.getElementById('image-preview');
     const colorPalette = document.getElementById('color-palette');
+    const variationsDiv = document.getElementById('variations');
     imageUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
+            imagePreview.innerHTML = '';
+            imagePreview.appendChild(img);
             img.onload = () => {
-                const colors = colorThief.getPalette(img, 5); // Extrai 5 cores
-                colorPalette.innerHTML = '';
-                colors.forEach(rgb => {
-                    const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-                    const block = document.createElement('div');
-                    block.className = 'color-block';
-                    block.style.backgroundColor = hex;
-                    block.innerHTML = `${hex}<br>RGB: ${rgb.join(', ')}`;
-                    block.addEventListener('click', () => alert(`Variações de ${hex} em breve!`));
-                    colorPalette.appendChild(block);
-                });
-                history.push(colors);
-                redoStack = [];
+                const colors = colorThief.getPalette(img, 5);
+                renderPalette(colors, colorPalette, variationsDiv, 'extract');
+                history.extract.push(colors);
+                redoStack.extract = [];
             };
         }
     });
@@ -61,9 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateHarmony() {
         const hex = baseColor.value;
         const rgb = hexToRgb(hex);
-        harmonyPalette.innerHTML = '';
-        let colors = [hex];
-
+        let colors = [rgb];
         switch (harmonySelect.value) {
             case 'analogous':
                 colors.push(adjustHue(rgb, 30), adjustHue(rgb, -30));
@@ -78,71 +73,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 colors.push(adjustHue(rgb, 180));
                 break;
         }
-
-        colors.forEach(color => {
-            const block = document.createElement('div');
-            block.className = 'color-block';
-            block.style.backgroundColor = color;
-            block.innerHTML = `${color}<br>RGB: ${hexToRgb(color).join(', ')}`;
-            harmonyPalette.appendChild(block);
-        });
+        renderPalette(colors, harmonyPalette, null, 'wheel');
+        history.wheel.push(colors);
+        redoStack.wheel = [];
     }
     baseColor.addEventListener('change', updateHarmony);
     harmonySelect.addEventListener('change', updateHarmony);
-    updateHarmony(); // Inicializa com a cor padrão
+    updateHarmony();
 
     // Tabela Cromática
     const colorTable = document.getElementById('color-table');
+    const tableVariations = document.getElementById('table-variations');
     const predefinedColors = [
-        '#FF5733', '#33FF57', '#3357FF', '#FF33A1', // Primários/Secundários
-        '#FFD700', '#8A2BE2', '#00CED1', '#FF4500'  // Tons variados
-    ];
-    predefinedColors.forEach(hex => {
-        const block = document.createElement('div');
-        block.className = 'color-block';
-        block.style.backgroundColor = hex;
-        block.innerHTML = `${hex}<br>RGB: ${hexToRgb(hex).join(', ')}`;
-        block.addEventListener('click', () => alert(`Variações de ${hex} em breve!`));
-        colorTable.appendChild(block);
-    });
+        '#FF5733', '#33FF57', '#3357FF', '#FF33A1',
+        '#FFD700', '#8A2BE2', '#00CED1', '#FF4500'
+    ].map(hexToRgb);
+    renderPalette(predefinedColors, colorTable, tableVariations, 'table');
+    history.table.push(predefinedColors);
 
-    // Modal de Instruções
-    const instructionsBtn = document.getElementById('instructions');
-    const modal = document.getElementById('instructions-modal');
-    const closeModal = document.getElementById('close-modal');
-    instructionsBtn.addEventListener('click', () => modal.style.display = 'flex');
-    closeModal.addEventListener('click', () => modal.style.display = 'none');
+    // Renderização de Paleta e Variações
+    function renderPalette(colors, container, variationsContainer, tab) {
+        container.innerHTML = '';
+        colors.forEach(rgb => {
+            const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+            const block = document.createElement('div');
+            block.className = 'color-block';
+            block.style.backgroundColor = hex;
+            block.innerHTML = `${hex}<br>RGB: ${rgb.join(', ')}`;
+            block.addEventListener('click', () => {
+                if (variationsContainer) {
+                    variationsContainer.innerHTML = '';
+                    const variations = [
+                        lighten(rgb, 20), darken(rgb, 20),
+                        adjustHue(rgb, 15), adjustHue(rgb, -15)
+                    ];
+                    variations.forEach(varRgb => {
+                        const varHex = rgbToHex(varRgb[0], varRgb[1], varRgb[2]);
+                        const varBlock = document.createElement('div');
+                        varBlock.className = 'color-block';
+                        varBlock.style.backgroundColor = varHex;
+                        varBlock.innerHTML = `${varHex}<br>RGB: ${varRgb.join(', ')}`;
+                        variationsContainer.appendChild(varBlock);
+                    });
+                }
+            });
+            container.appendChild(block);
+        });
+    }
 
     // Ferramentas
     document.getElementById('undo').addEventListener('click', () => {
-        if (history.length > 1) {
-            redoStack.push(history.pop());
-            const lastColors = history[history.length - 1];
-            colorPalette.innerHTML = '';
-            lastColors.forEach(rgb => {
-                const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-                const block = document.createElement('div');
-                block.className = 'color-block';
-                block.style.backgroundColor = hex;
-                block.innerHTML = `${hex}<br>RGB: ${rgb.join(', ')}`;
-                colorPalette.appendChild(block);
-            });
+        if (history[currentTab].length > 1) {
+            redoStack[currentTab].push(history[currentTab].pop());
+            const lastColors = history[currentTab][history[currentTab].length - 1];
+            const container = currentTab === 'extract' ? colorPalette : currentTab === 'wheel' ? harmonyPalette : colorTable;
+            const variations = currentTab === 'extract' ? variationsDiv : currentTab === 'table' ? tableVariations : null;
+            renderPalette(lastColors, container, variations, currentTab);
         }
     });
 
     document.getElementById('redo').addEventListener('click', () => {
-        if (redoStack.length > 0) {
-            const colors = redoStack.pop();
-            history.push(colors);
-            colorPalette.innerHTML = '';
-            colors.forEach(rgb => {
-                const hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-                const block = document.createElement('div');
-                block.className = 'color-block';
-                block.style.backgroundColor = hex;
-                block.innerHTML = `${hex}<br>RGB: ${rgb.join(', ')}`;
-                colorPalette.appendChild(block);
-            });
+        if (redoStack[currentTab].length > 0) {
+            const colors = redoStack[currentTab].pop();
+            history[currentTab].push(colors);
+            const container = currentTab === 'extract' ? colorPalette : currentTab === 'wheel' ? harmonyPalette : colorTable;
+            const variations = currentTab === 'extract' ? variationsDiv : currentTab === 'table' ? tableVariations : null;
+            renderPalette(colors, container, variations, currentTab);
         }
     });
 
@@ -156,6 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
             link.click();
         });
     });
+
+    // Modal de Instruções
+    const instructionsBtn = document.getElementById('instructions');
+    const modal = document.getElementById('instructions-modal');
+    const closeModal = document.getElementById('close-modal');
+    instructionsBtn.addEventListener('click', () => modal.style.display = 'flex');
+    closeModal.addEventListener('click', () => modal.style.display = 'none');
 
     // Funções Auxiliares
     function rgbToHex(r, g, b) {
