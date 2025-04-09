@@ -97,7 +97,13 @@ h1 {
     cursor: pointer;
 }
 
-#color-palette, #harmony-palette, #color-table {
+#image-preview img {
+    max-width: 300px;
+    margin: 20px auto;
+    display: block;
+}
+
+#color-palette, #harmony-palette, #color-table, .variations {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -163,5 +169,8 @@ footer {
     }
     .tabs {
         flex-direction: column;
+    }
+    #image-preview img {
+        max-width: 100%;
     }
 }
